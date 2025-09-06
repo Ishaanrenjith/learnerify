@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learnify - Your Learning Journey Starts Here</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .dark .card-hover:hover {
+             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+        .course-nav-item.active {
+            background-color: #eef2ff;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .dark .course-nav-item.active {
+            background-color: #312e81;
+            color: #a5b4fc;
+        }
+        .course-nav-item[aria-disabled="true"] {
+            color: #9ca3af;
+            cursor: not-allowed;
+        }
+        .dark .course-nav-item[aria-disabled="true"] {
+            color: #4b5563;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+        }
+        .explanation-box {
+            background-color: #f9fafb;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.9rem;
+        }
+        .dark .explanation-box {
+            background-color: #1f2937;
+            border-left-color: #4f46e5;
+        }
+        .purchase-plan-card.selected {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+        .dark .purchase-plan-card.selected {
+             border-color: #6366f1;
+            box-shadow: 0 0 0 2px #6366f1;
+        }
+
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        // Immediately apply theme to prevent FOUC
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+
+    <!-- Header -->
+    <header class="bg-white dark:bg-gray-800/80 dark:backdrop-blur-sm shadow-md dark:shadow-none sticky top-0 z-50 dark:border-b dark:border-gray-700">
+        <nav class="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-blue-600 dark:text-blue-500">Learnify</a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center space-x-6">
+                <a href="#courses" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Courses</a>
+                <a href="#pricing" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Pricing</a>
+                <a href="#dashboard" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">Dashboard</a>
+                <a href="#" class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">About Us</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                 <button id="theme-toggle-desktop" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i data-lucide="moon" class="w-5 h-5 theme-icon-moon"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden theme-icon-sun"></i>
+                </button>
+                <button id="loginBtn-desktop" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-300">Login</button>
+                <button id="logoutBtn-desktop" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300">Logout</button>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <div class="md:hidden flex items-center">
+                 <button id="theme-toggle-mobile" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i data-lucide="moon" class="w-5 h-5 theme-icon-moon"></i>
+                    <i data-lucide="sun" class="w-5 h-5 hidden theme-icon-sun"></i>
+                </button>
+                <button id="mobile-menu-button" class="p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#courses" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-white hover:bg-blue-600">Courses</a>
+                <a href="#pricing" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-white hover:bg-blue-600">Pricing</a>
+                <a href="#dashboard" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-white hover:bg-blue-600">Dashboard</a>
+                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-white hover:bg-blue-600">About Us</a>
+                 <div class="border-t border-gray-200 dark:border-gray-600 my-2"></div>
+                <button id="loginBtn-mobile" class="w-full text-left block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-white hover:bg-blue-600">Login</button>
+                <button id="logoutBtn-mobile" class="w-full text-left hidden block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:text-white hover:bg-red-500">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20 md:py-32">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-4">Unlock Your Potential</h1>
+            <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto">Join thousands of learners and take the next step in your career with our expert-led courses.</p>
+            <a href="#courses" class="bg-white text-blue-600 font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition duration-300 text-lg">Browse Courses</a>
+        </div>
+    </section>
+
+    <!-- Why Learnify? Section -->
+    <section id="features" class="py-20 bg-white dark:bg-gray-800">
+        <div class="container mx-auto px-4 sm:px-6">
+            <h2 class="text-3xl font-bold text-center mb-2">The Learnify Difference</h2>
+            <p class="text-center text-gray-600 dark:text-gray-400 mb-12">We provide the tools you need to succeed.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                <div class="feature-card">
+                    <div class="bg-blue-100 text-blue-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="award" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Expert-Led Courses</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Learn from industry professionals who are passionate about teaching.</p>
+                </div>
+                 <div class="feature-card">
+                    <div class="bg-blue-100 text-blue-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="search" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Infinite Subjects</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Instantly generate a full course catalog on any topic with AI.</p>
+                </div>
+                 <div class="feature-card">
+                    <div class="bg-blue-100 text-blue-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="brain-circuit" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">AI Study Buddy</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Get instant explanations for complex topics whenever you need them.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="bg-blue-100 text-blue-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="trending-up" class="w-10 h-10"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Guaranteed Progress</h3>
+                    <p class="text-gray-600 dark:text-gray-400">Our structured approach and practical exercises ensure you achieve your goals.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 sm:px-6 py-16">
+
+        <!-- Courses Section -->
+        <section id="courses" class="mb-20">
+             <!-- AI Course Generator -->
+            <div id="ai-generator-section" class="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mb-16 text-center">
+                <div class="flex justify-center items-center mb-4">
+                     <i data-lucide="sparkles" class="w-8 h-8 text-blue-500 mr-3"></i>
+                    <h2 class="text-2xl sm:text-3xl font-bold">AI Course Generator</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">Can't find what you're looking for? Enter any topic and our AI will generate a complete 300-course curriculum for you on the spot.</p>
+                <div class="flex justify-center max-w-lg mx-auto">
+                    <input type="text" id="ai-topic-input" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200" placeholder="e.g., Quantum Physics...">
+                    <button id="generate-courses-btn" class="bg-blue-600 text-white px-6 py-3 rounded-r-lg hover:bg-blue-700 transition duration-300 font-semibold">Generate</button>
+                </div>
+                 <div id="ai-generator-loader" class="hidden mt-6 flex flex-col items-center">
+                    <div class="loader"></div>
+                    <p id="ai-loader-text" class="mt-2 text-gray-500 dark:text-gray-400">Generating curriculum... This may take a moment.</p>
+                </div>
+            </div>
+
+            <h2 id="courses-title" class="text-3xl font-bold text-center mb-2">Featured Courses</h2>
+            <p id="courses-subtitle" class="text-center text-gray-600 dark:text-gray-400 mb-12">Find the perfect course to achieve your goals.</p>
+
+            <!-- Filter -->
+            <div id="filter-container" class="flex justify-center mb-8">
+                <div id="filter-buttons" class="flex flex-wrap justify-center gap-2 bg-gray-200 dark:bg-gray-700 p-1 rounded-lg">
+                    <button class="filter-btn active bg-white dark:bg-gray-800 text-blue-600 dark:text-blue-400 px-4 py-2 rounded-md shadow" data-filter="all">All</button>
+                    <button class="filter-btn px-4 py-2 rounded-md text-gray-600 dark:text-gray-300" data-filter="coding">Coding</button>
+                    <button class="filter-btn px-4 py-2 rounded-md text-gray-600 dark:text-gray-300" data-filter="design">Design</button>
+                    <button class="filter-btn px-4 py-2 rounded-md text-gray-600 dark:text-gray-300" data-filter="english">English</button>
+                </div>
+            </div>
+
+            <!-- Course Grid -->
+            <div id="course-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Course cards will be injected here by JavaScript -->
+            </div>
+             <div id="load-more-container" class="text-center mt-12">
+                <!-- Load More Button will be injected here -->
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="mb-20 hidden">
+            <h2 class="text-3xl font-bold text-center mb-2">Flexible Plans</h2>
+            <p class="text-center text-gray-600 dark:text-gray-400 mb-12">Choose a plan that works for you.</p>
+
+            <div class="flex justify-center mb-8">
+                <span class="mr-3 text-lg">Pay per Course</span>
+                <label for="toggle" class="flex items-center cursor-pointer">
+                    <div class="relative">
+                        <input type="checkbox" id="toggle" class="sr-only" onchange="togglePricing()">
+                        <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
+                        <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                    </div>
+                </label>
+                <span class="ml-3 text-lg font-semibold text-blue-600 dark:text-blue-400">Monthly Subscription</span>
+            </div>
+
+            <div class="flex flex-col lg:flex-row justify-center items-start gap-8">
+                <!-- Pricing Card 1: Basic -->
+                <div class="pricing-card w-full max-w-sm bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+                    <h3 class="text-2xl font-bold text-center mb-2">Basic</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-center mb-6">For casual learners</p>
+                    <div class="text-center mb-6">
+                        <span id="price-basic" class="text-5xl font-bold">$5</span>
+                        <span id="price-unit-basic" class="text-gray-500 dark:text-gray-400">/month</span>
+                    </div>
+                    <ul class="space-y-4 text-gray-600 dark:text-gray-300 mb-8">
+                        <li class="flex items-center"><i data-lucide="check-circle" class="text-green-500 mr-2"></i>Access to 5 courses/month</li>
+                        <li class="flex items-center"><i data-lucide="check-circle" class="text-green-500 mr-2"></i>Basic learning materials</li>
+                        <li class="flex items-center"><i data-lucide="check-circle" class="text-green-500 mr-2"></i>Community support</li>
+                        <li class="flex items-center text-gray-400 dark:text-gray-500"><i data-lucide="x-circle" class="mr-2"></i>Certificates of completion</li>
+                    </ul>
+                    <button class="w-full bg-blue-100 text-blue-600 font-bold py-3 rounded-lg hover:bg-blue-200 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 transition duration-300" data-plan="basic">Choose Plan</button>
+                </div>
+
+                <!-- Pricing Card 2: Pro (Featured) -->
+                <div class="pricing-card w-full max-w-sm bg-blue-600 text-white p-8 rounded-xl shadow-2xl border border-blue-700 dark:border-blue-500 relative overflow-hidden">
+                    <span class="absolute top-0 right-0 bg-yellow-400 text-gray-800 text-xs font-bold px-3 py-1 rounded-bl-lg">Most Popular</span>
+                    <h3 class="text-2xl font-bold text-center mb-2">Pro</h3>
+                    <p class="text-blue-200 text-center mb-6">For serious learners</p>
+                    <div class="text-center mb-6">
+                        <span id="price-pro" class="text-5xl font-bold">$10</span>
+                        <span id="price-unit-pro" class="text-blue-200">/month</span>
+                    </div>
+                    <ul class="space-y-4 text-blue-100 mb-8">
+                        <li class="flex items-center"><i data-lucide="check-circle" class="text-green-400 mr-2"></i>Unlimited course access</li>
+                        <li class="flex items-center"><i data-lucide="check-circle" class="text-green-400 mr-2"></i>All learning materials</li>
+                        <li class="flex items-center"><i data-lucide="check-circle" class="text-green-400 mr-2"></i>Priority support</li>
+                        <li class="flex items-center"><i data-lucide="check-circle" class="text-green-400 mr-2"></i>Certificates of completion</li>
+                    </ul>
+                    <button class="w-full bg-white text-blue-600 font-bold py-3 rounded-lg hover:bg-gray-100 transition duration-300" data-plan="pro">Choose Plan</button>
+                </div>
+            </div>
+
+            <!-- Dev Code Section -->
+            <div class="mt-16 text-center">
+                <div class="inline-block bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <label for="dev-code-input" class="text-sm text-gray-500 dark:text-gray-400">Developer Access</label>
+                    <div class="flex mt-2">
+                        <input type="text" id="dev-code-input" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-l-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 dark:bg-gray-700" placeholder="Enter Code...">
+                        <button id="submit-dev-code-btn" class="bg-gray-600 text-white px-4 py-2 rounded-r-md hover:bg-gray-700 transition duration-300">Unlock</button>
+                    </div>
+                     <p id="dev-code-status" class="text-xs mt-2 h-4"></p> <!-- For status messages -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- User Dashboard Section -->
+        <section id="dashboard" class="mb-20">
+            <h2 class="text-3xl font-bold text-center mb-12">Your Dashboard</h2>
+            <div id="dashboard-content" class="text-center">
+                <!-- Logged in/out state will be managed by JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white dark:bg-gray-900 dark:border-t dark:border-gray-700">
+        <div class="container mx-auto px-4 sm:px-6 py-8 text-center">
+            <p>&copy; 2025 Learnify. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Course Player Modal -->
+    <div id="course-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center p-4 z-50">
+        <div id="modal-content" class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-5xl h-[90vh] flex flex-col md:flex-row overflow-hidden relative">
+           <!-- Course Player content will be injected by JS -->
+        </div>
+    </div>
+
+    <!-- Purchase Modal -->
+    <div id="purchase-modal" class="fixed inset-0 bg-black bg-opacity-70 hidden items-center justify-center p-4 z-[60]">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl relative p-8">
+            <button id="closePurchaseModalBtn" class="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <div class="text-center">
+                <i data-lucide="unlock" class="w-12 h-12 text-blue-500 mx-auto mb-4"></i>
+                <h2 class="text-2xl font-bold mb-2">Upgrade to Unlock More Features</h2>
+                <p id="purchase-modal-text" class="text-gray-600 dark:text-gray-400 mb-8">Choose a plan to continue your learning journey without limits.</p>
+            </div>
+
+            <div id="purchase-plans-container" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                 <!-- Basic Plan -->
+                <div class="purchase-plan-card border-2 dark:border-gray-700 rounded-lg p-6 cursor-pointer" data-plan="basic">
+                    <h3 class="text-xl font-bold">Basic Plan</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">For casual learners</p>
+                    <p class="text-3xl font-bold mb-4">$5<span class="text-base font-normal text-gray-500">/month</span></p>
+                    <ul class="text-sm space-y-2 text-left">
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-green-500 mr-2"></i>5 courses/month</li>
+                    </ul>
+                </div>
+                 <!-- Pro Plan -->
+                <div class="purchase-plan-card border-2 dark:border-gray-700 rounded-lg p-6 cursor-pointer" data-plan="pro">
+                     <h3 class="text-xl font-bold">Pro Plan</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">For serious learners</p>
+                    <p class="text-3xl font-bold mb-4">$10<span class="text-base font-normal text-gray-500">/month</span></p>
+                    <ul class="text-sm space-y-2 text-left">
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-green-500 mr-2"></i>Unlimited Courses</li>
+                        <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-green-500 mr-2"></i>AI Study Buddy</li>
+                         <li class="flex items-center"><i data-lucide="check" class="w-4 h-4 text-green-500 mr-2"></i>Certificates</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button id="confirm-purchase-btn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>Confirm Purchase</button>
+        </div>
+    </div>
+
+
+    <script>
+        lucide.createIcons();
+
+        // Check for special access via URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasSpecialAccess = urlParams.get('access') === 'special';
+
+        // --- Gemini API Configuration ---
+        const API_KEY = "AIzaSyD45ojtiErek96dv4dFyAFxRHT8obiwsx4";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+
+        const quizSchema = {
+            type: "ARRAY",
+            items: {
+                type: "OBJECT",
+                properties: {
+                    q: { type: "STRING" },
+                    o: { type: "ARRAY", items: { type: "STRING" } },
+                    a: { type: "NUMBER" }
+                },
+                required: ["q", "o", "a"]
+            }
+        };
+
+        const levelContentSchema = {
+             type: "ARRAY",
+             items: {
+                type: "OBJECT",
+                properties: {
+                    topics: { type: "ARRAY", items: { type: "STRING" } },
+                    assignment: { type: "STRING" }
+                },
+                required: ["topics", "assignment"]
+             }
+        };
+
+        const courseCatalogSchema = {
+            type: "ARRAY",
+            items: {
+                type: "OBJECT",
+                properties: {
+                    title: { type: "STRING" }
+                },
+                required: ["title"]
+            }
+        };
+
+
+        // --- HANDCRAFTED FEATURED COURSES ---
+        const featuredCourses = [
+            // Coding Courses
+            {
+                id: 1,
+                title: 'Python for Everybody',
+                category: 'coding',
+                price: 2,
+                duration: '30 Levels',
+                description: 'A comprehensive introduction to Python programming for beginners. This course will take you from zero to hero in Python 3.',
+                instructor: 'Charles Severance',
+                image: 'https://placehold.co/600x400/667eea/ffffff?text=Python',
+                weeklyBreakdown: [
+                    { week: 1, title: "Introduction to Python", topics: ["Why we program", "Variables, expressions, statements", "Your first program", "Python's syntax rules"], assignment: "Install Python and write a script that prints your name. Complete exercises on basic arithmetic operations."},
+                    { week: 2, title: "Control Flow", topics: ["Conditional execution (if/else)", "Defining and calling functions", "Function parameters and return values", "Handling user input"], assignment: "Create a program that gives different advice based on the weather. Write a function that converts temperatures."},
+                    { week: 3, title: "Iteration and Strings", topics: ["'for' and 'while' loops", "Looping through strings", "String slicing and methods", "Basic debugging of loops"], assignment: "Write a script to count vowels in a sentence. Create a number guessing game using a while loop."},
+                    { week: 4, title: "Data Structures: Lists", topics: ["Lists and their methods", "List indexing and slicing", "List comprehensions", "Nested lists (2D arrays)"], assignment: "Build a simple to-do list application using a list. Write a program to find the average of numbers in a list."},
+                    { week: 5, title: "Data Structures: Dictionaries & Tuples", topics: ["Dictionaries (key-value pairs)", "Dictionary methods", "Tuples (immutable lists)", "Combining and nesting data structures"], assignment: "Build a simple contact book using a dictionary. Store coordinates using tuples."},
+                    { week: 6, title: "Files", topics: ["Reading and writing text files", "Handling file paths", "Working with CSV files", "Handling file errors with try-except"], assignment: "Write a program that reads a text file and counts the frequency of each word. Save a dictionary to a CSV file."},
+                    { week: 7, title: "Object-Oriented Programming (OOP) Part 1", topics: ["Introduction to classes and objects", "Defining methods", "The `__init__` constructor", "Instance attributes"], assignment: "Create a `Car` class with attributes like `make`, `model`, and `year`, and methods like `start_engine`."},
+                    { week: 8, title: "Object-Oriented Programming (OOP) Part 2", topics: ["Inheritance", "Method overriding", "Polymorphism", "Class attributes vs. instance attributes"], assignment: "Create an `ElectricCar` class that inherits from your `Car` class and adds a `battery_size` attribute."},
+                    { week: 9, title: "Modules and Libraries", topics: ["Importing modules", "Standard library exploration (math, random, datetime)", "Installing third-party packages with pip", "Creating your own modules"], assignment: "Write a program that uses the `random` module to simulate dice rolls and the `datetime` module to show the current date."},
+                    { week: 10, title: "Introduction to APIs", topics: ["What is an API?", "Making GET requests with the `requests` library", "Understanding JSON data format", "Parsing JSON responses"], assignment: "Fetch data from a public API (like a weather API or a joke API) and display the results in a user-friendly format."},
+                    { week: 11, title: "Working with Databases (SQLite)", topics: ["Introduction to SQL", "Connecting to a SQLite database", "Creating tables", "CRUD Operations (Create, Read, Update, Delete)"], assignment: "Create a simple database to store user information (name, email) and write Python scripts to add, view, update, and delete users."},
+                    { week: 12, title: "Web Scraping", topics: ["Understanding HTML structure", "Using `BeautifulSoup` to parse HTML", "Finding elements by tag and class", "Ethical considerations of scraping"], assignment: "Scrape the headlines and links from the homepage of a news website and save them to a file."},
+                    { week: 13, title: "Introduction to Data Analysis with Pandas", topics: ["What is a DataFrame?", "Reading data from CSV files", "Inspecting data (`.head()`, `.info()`, `.describe()`)", "Selecting columns and rows"], assignment: "Load a dataset into a Pandas DataFrame and perform basic analysis, like finding the mean of a specific column."},
+                    { week: 14, title: "Data Manipulation with Pandas", topics: ["Filtering data based on conditions", "Sorting data", "Grouping data with `groupby`", "Handling missing values"], assignment: "Using a dataset, filter for specific criteria (e.g., all sales in a certain region) and calculate summary statistics for each group."},
+                    { week: 15, title: "Data Visualization with Matplotlib", topics: ["Creating basic plots (line, bar, scatter)", "Customizing plots (titles, labels, colors)", "Creating subplots", "Saving plots to files"], assignment: "Create a bar chart to visualize sales data and a scatter plot to show the relationship between two variables from a dataset."},
+                    { week: 16, title: "Introduction to Web Frameworks (Flask)", topics: ["What is a web framework?", "Setting up a basic Flask application", "Routing URLs to functions", "Rendering HTML templates"], assignment: "Build a simple personal website with a homepage and an 'About Me' page using Flask."},
+                    { week: 17, title: "Building a Simple API with Flask", topics: ["Returning JSON data from Flask", "Handling different HTTP methods (GET, POST)", "Building a simple RESTful API", "Testing API endpoints"], assignment: "Create an API that serves a list of books (as JSON) and allows a user to add a new book via a POST request."},
+                    { week: 18, title: "Testing and Debugging", topics: ["Using `print()` for debugging", "Understanding error messages and tracebacks", "Writing unit tests with `unittest`", "Test-driven development (TDD) concepts"], assignment: "Write unit tests for a function you created in a previous lesson. Use the debugger to step through a piece of code."},
+                    { week: 19, title: "Algorithms and Data Structures II", topics: ["Big O notation basics", "Common sorting algorithms (Bubble, Selection)", "Search algorithms (Linear, Binary)", "Stacks and Queues"], assignment: "Implement a binary search algorithm in Python. Compare its performance to a linear search on a large list."},
+                    { week: 20, title: "Final Project: Capstone", topics: ["Project planning and architecture", "Integrating multiple concepts (API, database, OOP)", "Creating a complete application", "Presenting your project"], assignment: "Build a complete data application that retrieves real-world data from an API, stores it in a database, and presents it through a simple web interface using Flask."},
+                    { week: 21, title: "Advanced Flask Topics", topics: ["Flask Blueprints for larger apps", "Working with WebSockets", "User authentication with Flask-Login"], assignment: "Refactor a Flask app to use Blueprints. Add a real-time chat feature." },
+                    { week: 22, title: "Introduction to Django", topics: ["Django vs. Flask", "Project and app structure", "The MVT (Model-View-Template) pattern", "Running the development server"], assignment: "Set up a new Django project and create your first app." },
+                    { week: 23, title: "Django Models & Admin", topics: ["Defining models", "Database migrations", "Using the Django admin site", "Querying data with the ORM"], assignment: "Create models for a blog (Post, Author, Tag) and manage them through the admin interface." },
+                    { week: 24, title: "Django Views & Templates", topics: ["Function-based vs. Class-based views", "Passing data to templates", "Template inheritance", "Handling forms in Django"], assignment: "Create views and templates to display a list of blog posts and a detail page for a single post." },
+                    { week: 25, title: "Building a Full Django App", topics: ["User registration and login", "Static file management", "Deploying a Django application", "Third-party packages"], assignment: "Build a complete blog application with user authentication and comments." },
+                    { week: 26, title: "Intro to Machine Learning", topics: ["What is Machine Learning?", "Supervised vs. Unsupervised Learning", "Introduction to Scikit-learn", "Loading datasets"], assignment: "Install scikit-learn and load a sample dataset like Iris or Boston Housing." },
+                    { week: 27, title: "Supervised Learning", topics: ["Linear Regression", "Logistic Regression", "Decision Trees", "Evaluating model performance"], assignment: "Train a classification model on the Iris dataset and evaluate its accuracy." },
+                    { week: 28, title: "Unsupervised Learning", topics: ["Clustering with K-Means", "Dimensionality Reduction with PCA", "Use cases for unsupervised learning"], assignment: "Use K-Means to find clusters in a customer dataset." },
+                    { week: 29, title: "Natural Language Processing (NLP)", topics: ["Tokenization", "Sentiment Analysis", "Working with libraries like NLTK or SpaCy", "Bag-of-words model"], assignment: "Perform sentiment analysis on a set of product reviews." },
+                    { week: 30, title: "Final Project: Advanced Capstone", topics: ["Combining multiple disciplines", "Building a full-stack application with ML components", "Project deployment and presentation"], assignment: "Develop a complete application that uses a web framework to serve predictions from a machine learning model you've trained." }
+                ]
+            },
+            // Design Courses
+            {
+                id: 2,
+                title: 'Figma UI/UX Design Essentials',
+                category: 'design',
+                price: 2,
+                duration: '30 Levels',
+                description: 'Learn how to design and prototype a complete mobile app from scratch using Figma. No previous design experience required.',
+                instructor: 'Daniel Scott',
+                image: 'https://placehold.co/600x400/764ba2/ffffff?text=Figma',
+                weeklyBreakdown: [
+                    { week: 1, title: "Figma Fundamentals", topics: ["Navigating the Figma interface", "Using frames and shapes", "Working with text and color styles", "Basic vector tools"], assignment: "Recreate the user interface of a simple login screen from a popular app." },
+                    { week: 2, title: "Layout and Composition", topics: ["The 8-point grid system", "Visual hierarchy", "Layout grids and columns", "Alignment and distribution tools"], assignment: "Design a simple blog post layout using a proper grid and demonstrating clear visual hierarchy." },
+                    { week: 3, title: "Wireframing and Prototyping", topics: ["Low-fidelity vs. High-fidelity wireframes", "Creating user flows", "Connecting screens with interactive links", "Using smart animate"], assignment: "Create a 5-screen low-fidelity wireframe and a clickable prototype for a new app idea." },
+                    { week: 4, title: "Typography", topics: ["Choosing and pairing fonts", "Establishing a type scale", "Line height, letter spacing, and readability", "Web font basics"], assignment: "Create a typographic style guide for a webpage, defining H1, H2, body, and caption styles." },
+                    { week: 5, title: "Color Theory", topics: ["The color wheel and color harmony", "Creating a color palette", "Understanding contrast and accessibility (WCAG)", "Applying color to a UI"], assignment: "Develop a primary, secondary, and accent color palette for a fictional brand and test it for accessibility." },
+                    { week: 6, title: "Advanced Techniques: Auto Layout", topics: ["Mastering Auto Layout for responsive design", "Nesting Auto Layout frames", "Absolute positioning within Auto Layout", "Building complex components"], assignment: "Build a responsive card component with an image, title, and description that adapts as you resize it." },
+                    { week: 7, title: "Advanced Techniques: Components", topics: ["Creating reusable components", "Using variants for component states (e.g., buttons)", "Component properties (text, boolean, instance swap)", "Organizing your components"], assignment: "Build a button component with variants for primary, secondary, and disabled states." },
+                    { week: 8, title: "Building a Design System", topics: ["Defining a style guide (color, typography, spacing)", "Creating a component library", "Defining design tokens", "Documenting your design system"], assignment: "Start a basic design system for a fictional brand, including color palette, text styles, and 3 key components." },
+                    { week: 9, title: "UI Design Principles", topics: ["Layout and composition", "Proximity, whitespace, and repetition", "Feedback and affordance", "Designing for different screen sizes (Responsive Design)"], assignment: "Analyze an existing app for UI design flaws and redesign one screen to improve its usability and aesthetics." },
+                    { week: 10, title: "UX Fundamentals: User Research", topics: ["What is UX?", "Conducting user interviews", "Creating surveys", "Developing user personas"], assignment: "Create a user persona for a potential user of a new fitness app." },
+                    { week: 11, title: "UX Fundamentals: Information Architecture", topics: ["Card sorting", "Creating sitemaps", "Navigation design patterns (tabs, hamburger menus)", "User flows vs. user journeys"], assignment: "Create a sitemap for a simple e-commerce website with 10-15 pages." },
+                    { week: 12, title: "Advanced Prototyping", topics: ["Interactive components", "Conditional logic in prototypes", "Using variables", "Creating advanced microinteractions and animations"], assignment: "Design and prototype an interactive form with input fields that show different states and a submittable button." },
+                    { week: 13, title: "Designing for Mobile", topics: ["iOS vs. Android design guidelines", "Understanding touch targets", "Designing for different device sizes and orientations", "Mobile-first design approach"], assignment: "Redesign a screen from a website to be a mobile-native view, considering mobile design patterns." },
+                    { week: 14, title: "Designing for Web", topics: ["Responsive breakpoints", "Designing for the fold", "Hover states and other web interactions", "Common web layout patterns (e.g., F-pattern, Z-pattern)"], assignment: "Design the homepage for a blog, creating views for desktop, tablet, and mobile breakpoints." },
+                    { week: 15, title: "Accessibility in Design (A11y)", topics: ["Designing for screen readers", "Color contrast and colorblindness", "Focus states for keyboard navigation", "Using ARIA labels"], assignment: "Audit a website for accessibility issues and document 3-5 improvements that could be made." },
+                    { week: 16, title: "Figma Plugins and Integrations", topics: ["Finding and using popular plugins (Unsplash, Iconify, etc.)", "Automating tasks with plugins", "Integrating with other tools like Zeplin and Storybook", "Building your own simple plugin"], assignment: "Use plugins to populate a design with realistic data and icons, speeding up your workflow." },
+                    { week: 17, title: "User Testing", topics: ["Planning a usability test", "Moderated vs. unmoderated testing", "Writing a test script", "Analyzing feedback and iterating on designs"], assignment: "Write a short usability test plan to get feedback on a prototype you've created." },
+                    { week: 18, title: "Developer Handoff", topics: ["Using Figma's 'Inspect' panel", "Preparing and exporting assets (SVG, PNG)", "Communicating with developers", "Using tools like Zeplin for handoff"], assignment: "Prepare a component from your design system for handoff, documenting its properties and exporting its assets." },
+                    { week: 19, title: "Portfolio Building", topics: ["Creating compelling case studies", "Structuring your portfolio", "Showcasing your design process, not just final screens", "Tips for online portfolio platforms"], assignment: "Outline a case study for a project you've worked on during this course, from problem to solution." },
+                    { week: 20, title: "Final Project", topics: ["From idea to high-fidelity prototype", "Conducting user testing on your prototype", "Preparing a full case study for your portfolio", "Presenting your design and process"], assignment: "Design and prototype a complete 10-screen mobile app for a problem you want to solve, and write a full case study for it." },
+                    { week: 21, title: "Advanced Design Systems", topics: ["Design tokens", "Automating documentation", "Versioning and team collaboration", "Integrating with Storybook"], assignment: "Expand your design system with design tokens for spacing and border radius." },
+                    { week: 22, title: "Design Thinking Workshop", topics: ["The 5 stages of Design Thinking", "Running brainstorming sessions", "Empathy mapping", "Rapid prototyping and testing ideas"], assignment: "Run a mini design thinking workshop for a fictional problem, from empathy to prototype." },
+                    { week: 23, title: "Service Design Blueprinting", topics: ["What is Service Design?", "Mapping customer journeys", "Creating a service blueprint", "Identifying pain points and opportunities"], assignment: "Create a service blueprint for a common experience, like ordering coffee or booking a flight." },
+                    { week: 24, title: "UX Writing & Content Strategy", topics: ["Voice and tone", "Writing for UI (microcopy)", "Content-first design", "Creating a content style guide"], assignment: "Rewrite the copy for a user onboarding flow to be more clear, concise, and on-brand." },
+                    { week: 25, title: "Designing for Voice (VUI)", topics: ["Principles of voice user interface design", "Crafting conversations", "Prototyping voice interactions in Figma", "Handling errors and confirmations"], assignment: "Design a simple voice-based skill for a smart speaker, like checking the weather." },
+                    { week: 26, title: "Augmented Reality (AR) Design", topics: ["Introduction to AR/VR design", "Understanding spatial interfaces", "Prototyping AR experiences", "Tools for AR design"], assignment: "Create a concept and a simple 2D prototype for a mobile AR application." },
+                    { week: 27, title: "Freelancing for Designers", topics: ["Finding clients", "Pricing your work", "Writing proposals and contracts", "Managing client relationships"], assignment: "Create a professional design proposal for a sample project brief." },
+                    { week: 28, title: "Building a Personal Brand", topics: ["Defining your niche", "Creating a personal website/portfolio", "Using social media effectively (Dribbble, Behance, LinkedIn)", "Networking and community involvement"], assignment: "Develop a personal branding statement and a plan for your online presence." },
+                    { week: 29, title: "Advanced Portfolio Review", topics: ["Structuring your case studies for maximum impact", "Telling a compelling story", "Preparing for portfolio presentations", "Getting feedback and iterating"], assignment: "Refine a case study from your portfolio based on peer feedback, focusing on storytelling." },
+                    { week: 30, title: "Final Project: Cross-Platform Experience", topics: ["Designing a cohesive experience across web, mobile, and another platform (e.g., voice, watch)", "System thinking", "Presenting a holistic product vision"], assignment: "Design a key feature for a product that works seamlessly across at least two different platforms, and create a comprehensive case study." }
+                ]
+            },
+        ];
+
+        // --- DYNAMIC COURSE GENERATION ---
+        function generatePlaceholderCourses(count) {
+            const generatedCourses = [];
+            const usedTitles = new Set();
+            featuredCourses.forEach(c => usedTitles.add(c.title));
+
+            const categories = {
+                coding: {
+                    prefixes: ['Intro to', 'Advanced', 'Mastering', 'Complete Guide to', 'Practical'],
+                    topics: ['JavaScript', 'Python', 'React', 'Node.js', 'SQL', 'C++', 'Go', 'Rust', 'Swift', 'Kotlin', 'Docker', 'AWS', 'WebAssembly', 'Cybersecurity'],
+                    suffixes: ['for Beginners', 'for Data Science', 'in Web Development', 'for Mobile Apps', 'in the Cloud', 'for Game Dev'],
+                    color: '667eea'
+                },
+                design: {
+                    prefixes: ['Fundamentals of', 'Creative', 'Modern', 'Applied', 'Essentials of'],
+                    topics: ['Typography', 'UI Prototyping', 'Animation', 'Brand Identity', '3D Modeling', 'UX Research', 'Interaction Design', 'Motion Graphics'],
+                    suffixes: ['in Figma', 'with After Effects', 'for Mobile', 'for the Web', 'in Blender', 'for Startups'],
+                    color: '764ba2'
+                },
+                english: {
+                    prefixes: ['Effective', 'Professional', 'Creative', 'Academic', 'Advanced'],
+                    topics: ['Business Writing', 'Creative Writing', 'Grammar', 'Public Speaking', 'IELTS Prep', 'Technical Writing', 'Copywriting', 'Storytelling'],
+                    suffixes: ['for the Workplace', 'for Marketing', 'for University', 'for Beginners', 'Masterclass'],
+                    color: 'f56565'
+                }
+            };
+            const instructors = ['John Doe', 'Jane Smith', 'Peter Jones', 'Mary Williams', 'David Brown', 'Susan Davis', 'Michael Miller', 'Chris Green', 'Patricia Hall', 'Robert King'];
+
+            const categoryKeys = Object.keys(categories);
+            let attempts = 0;
+
+            while (generatedCourses.length < count && attempts < count * 10) {
+                const categoryKey = categoryKeys[Math.floor(Math.random() * categoryKeys.length)];
+                const catData = categories[categoryKey];
+
+                const prefix = catData.prefixes[Math.floor(Math.random() * catData.prefixes.length)];
+                const topic = catData.topics[Math.floor(Math.random() * catData.topics.length)];
+                const suffix = catData.suffixes[Math.floor(Math.random() * catData.suffixes.length)];
+
+                let title = `${prefix} ${topic}`;
+                if (Math.random() > 0.4) {
+                    title += ` ${suffix}`;
+                }
+
+                if (!usedTitles.has(title)) {
+                    usedTitles.add(title);
+                    const courseId = generatedCourses.length + 3;
+                    const instructor = instructors[Math.floor(Math.random() * instructors.length)];
+
+                    const weeklyBreakdownTemplate = Array.from({ length: 30 }, (_, weekIndex) => {
+                         const difficulty = weekIndex < 10 ? 'Beginner' : weekIndex < 20 ? 'Intermediate' : 'Advanced';
+                         return {
+                            week: weekIndex + 1,
+                            title: `Level ${weekIndex + 1}: ${difficulty} Concepts in ${topic}`,
+                            topics: null, // Will be generated by AI
+                            assignment: null, // Will be generated by AI
+                            isContentGenerated: false
+                        }
+                    });
+
+                    generatedCourses.push({
+                        id: courseId,
+                        title: title,
+                        category: categoryKey,
+                        price: 2,
+                        duration: '30 Levels',
+                        description: `An in-depth 30-level course on ${topic} taught by ${instructor}. Perfect for advancing your skills.`,
+                        instructor: instructor,
+                        image: `https://placehold.co/600x400/${catData.color}/ffffff?text=${encodeURIComponent(topic)}`,
+                        weeklyBreakdown: weeklyBreakdownTemplate
+                    });
+                }
+                attempts++;
+            }
+            return generatedCourses;
+        }
+
+        let allCourses = [...featuredCourses, ...generatePlaceholderCourses(900)];
+
+        const user = {
+            isLoggedIn: false,
+            name: 'Alex Johnson',
+            enrolledCourses: [1, 2],
+            progress: { 1: 0, 2: 0 }, // courseId: highest level completed
+            subscription: 'pro' // can be null, 'basic', or 'pro'
+        };
+
+        let generatedQuizCache = {};
+
+        // We wrap all our code in this listener to make sure the HTML is ready before the script runs
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- DOM ELEMENTS ---
+            const courseGrid = document.getElementById('course-grid');
+            const filterButtonsContainer = document.getElementById('filter-buttons');
+            const filterContainer = document.getElementById('filter-container');
+            const courseModal = document.getElementById('course-modal');
+            const modalContent = document.getElementById('modal-content');
+            const purchaseModal = document.getElementById('purchase-modal');
+            const loginBtnDesktop = document.getElementById('loginBtn-desktop');
+            const logoutBtnDesktop = document.getElementById('logoutBtn-desktop');
+            const loginBtnMobile = document.getElementById('loginBtn-mobile');
+            const logoutBtnMobile = document.getElementById('logoutBtn-mobile');
+            const dashboardContent = document.getElementById('dashboard-content');
+            const loadMoreContainer = document.getElementById('load-more-container');
+            const generateCoursesBtn = document.getElementById('generate-courses-btn');
+            const aiTopicInput = document.getElementById('ai-topic-input');
+            const aiLoader = document.getElementById('ai-generator-loader');
+            const aiLoaderText = document.getElementById('ai-loader-text');
+            const coursesTitle = document.getElementById('courses-title');
+            const coursesSubtitle = document.getElementById('courses-subtitle');
+            const themeToggleDesktop = document.getElementById('theme-toggle-desktop');
+            const themeToggleMobile = document.getElementById('theme-toggle-mobile');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const devCodeInput = document.getElementById('dev-code-input');
+            const submitDevCodeBtn = document.getElementById('submit-dev-code-btn');
+            const devCodeStatus = document.getElementById('dev-code-status');
+
+            let currentlyFilteredCourses = [];
+            let coursesRenderedCount = 0;
+            const COURSES_PER_PAGE = 12;
+
+            // --- Dark Mode Logic ---
+            const applyThemeUI = () => {
+                 const isDark = document.documentElement.classList.contains('dark');
+                 document.querySelectorAll('#theme-toggle-desktop, #theme-toggle-mobile').forEach(toggle => {
+                    const sunIcon = toggle.querySelector('.theme-icon-sun');
+                    const moonIcon = toggle.querySelector('.theme-icon-moon');
+                    if (isDark) {
+                        moonIcon.classList.add('hidden');
+                        sunIcon.classList.remove('hidden');
+                    } else {
+                        moonIcon.classList.remove('hidden');
+                        sunIcon.classList.add('hidden');
+                    }
+                 });
+            };
+
+            const toggleTheme = () => {
+                document.documentElement.classList.toggle('dark');
+                if (document.documentElement.classList.contains('dark')) {
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    localStorage.setItem('theme', 'light');
+                }
+                applyThemeUI();
+            };
+
+            themeToggleDesktop.addEventListener('click', toggleTheme);
+            themeToggleMobile.addEventListener('click', toggleTheme);
+            applyThemeUI(); // Apply on initial load
+
+            // --- Mobile Menu Logic ---
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+            mobileMenu.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A') {
+                     mobileMenu.classList.add('hidden');
+                }
+            });
+
+
+            const appendCourses = () => {
+                const coursesToRender = currentlyFilteredCourses.slice(coursesRenderedCount, coursesRenderedCount + COURSES_PER_PAGE);
+
+                let coursesHtml = '';
+                coursesToRender.forEach(course => {
+                    const courseCard = `
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:border dark:border-gray-700 overflow-hidden transition duration-300 card-hover cursor-pointer" data-course-id="${course.id}">
+                            <img src="${course.image}" alt="${course.title}" class="w-full h-48 object-cover">
+                            <div class="p-6">
+                                <span class="text-sm font-semibold ${
+                                    course.category === 'coding' ? 'text-blue-500 bg-blue-100 dark:bg-blue-900/50 dark:text-blue-400' :
+                                    course.category === 'design' ? 'text-purple-500 bg-purple-100 dark:bg-purple-900/50 dark:text-purple-400' :
+                                    course.category === 'english' ? 'text-red-500 bg-red-100 dark:bg-red-900/50 dark:text-red-400' :
+                                    'text-gray-500 bg-gray-100 dark:bg-gray-700 dark:text-gray-300'
+                                } px-2 py-1 rounded">${course.category.charAt(0).toUpperCase() + course.category.slice(1)}</span>
+                                <h3 class="text-xl font-bold mt-4 mb-2">${course.title}</h3>
+                                <p class="text-gray-600 dark:text-gray-400 mb-4">${course.description.substring(0, 80)}...</p>
+                                <div class="flex justify-between items-center text-sm font-medium text-gray-500 dark:text-gray-400">
+                                    <span><i data-lucide="layers" class="inline w-4 h-4 mr-1"></i>${course.duration}</span>
+                                    <span class="text-lg font-bold text-green-600 dark:text-green-400">Free</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    coursesHtml += courseCard;
+                });
+
+                courseGrid.innerHTML += coursesHtml;
+                coursesRenderedCount += coursesToRender.length;
+                lucide.createIcons();
+
+                // Update "Load More" button visibility
+                const loadMoreBtn = document.getElementById('load-more-btn');
+                if (coursesRenderedCount >= currentlyFilteredCourses.length) {
+                    if(loadMoreBtn) loadMoreBtn.style.display = 'none';
+                } else {
+                    if(loadMoreBtn) loadMoreBtn.style.display = 'block';
+                }
+            };
+
+            // --- COURSE RENDERING & FILTERING ---
+            const renderCourses = (filter = 'all') => {
+                const sourceCourses = allCourses;
+                currentlyFilteredCourses = filter === 'all' ? sourceCourses : sourceCourses.filter(c => c.category === filter);
+
+                courseGrid.innerHTML = '';
+                coursesRenderedCount = 0;
+
+                const loadMoreBtn = document.getElementById('load-more-btn');
+                if (!loadMoreBtn) {
+                    loadMoreContainer.innerHTML = `<button id="load-more-btn" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-300">Load More Courses</button>`;
+                    document.getElementById('load-more-btn').addEventListener('click', appendCourses);
+                } else {
+                     loadMoreBtn.style.display = 'block';
+                }
+
+                appendCourses();
+            };
+
+            // --- PURCHASE MODAL LOGIC ---
+            const openPurchaseModal = (featureName) => {
+                 const purchaseModalText = document.getElementById('purchase-modal-text');
+                 purchaseModalText.textContent = `Upgrade to Pro to use the ${featureName} feature and more.`;
+                 purchaseModal.classList.remove('hidden');
+                 purchaseModal.classList.add('flex');
+            };
+
+            const closePurchaseModal = () => {
+                purchaseModal.classList.add('hidden');
+                purchaseModal.classList.remove('flex');
+            }
+
+
+            // --- COURSE PLAYER LOGIC ---
+            const openCoursePlayer = async (courseId) => {
+                const course = allCourses.find(c => c.id === parseInt(courseId));
+                if (!course) return;
+
+                if (user.subscription !== 'pro') {
+                    openPurchaseModal(`access courses`);
+                    return;
+                }
+
+                modalContent.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full w-full">
+                        <div class="loader"></div>
+                        <p class="mt-4 text-gray-600 dark:text-gray-400">✨ Preparing your course...</p>
+                    </div>`;
+                courseModal.classList.remove('hidden');
+                courseModal.classList.add('flex');
+
+                const needsGeneration = course.id > 2 && course.weeklyBreakdown.some(w => !w.isContentGenerated);
+
+                if (needsGeneration) {
+                    try {
+                        const allLevelsContent = await generateAllLevelsContent(course.title);
+
+                        if (!allLevelsContent || allLevelsContent.length !== 30) {
+                             throw new Error("AI did not return the expected 30 levels.");
+                        }
+
+                        allLevelsContent.forEach((content, index) => {
+                            if (content) {
+                                course.weeklyBreakdown[index].topics = content.topics;
+                                course.weeklyBreakdown[index].assignment = content.assignment;
+                                course.weeklyBreakdown[index].isContentGenerated = true;
+                            }
+                        });
+                    } catch (error) {
+                        console.error("Failed to generate all levels:", error);
+                        modalContent.innerHTML = `<div class="p-8 text-center w-full"><p>Failed to load course content. Please close and try again.</p></div>`;
+                        return;
+                    }
+                }
+
+                const userProgress = user.progress[course.id] || 0;
+
+                modalContent.innerHTML = `
+                    <button id="closeModalBtn" class="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white z-20">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                    <aside class="w-full md:w-1/4 h-1/3 md:h-full bg-gray-50 dark:bg-gray-800 border-b md:border-b-0 md:border-r dark:border-gray-700 p-6 overflow-y-auto">
+                        <h3 class="text-xl font-bold mb-1">${course.title}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">By ${course.instructor}</p>
+                        <nav id="course-navigation" class="space-y-2">
+                            ${course.weeklyBreakdown.map(week => {
+                                const isLocked = week.week > userProgress + 1;
+                                const navItemClass = isLocked ? '' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50';
+                                const lockIcon = isLocked ? '<i data-lucide="lock" class="w-5 h-5 mr-3"></i>' : '<i data-lucide="book-open" class="w-5 h-5 mr-3"></i>';
+
+                                return `
+                                <a href="#" class="course-nav-item flex items-center p-3 rounded-lg ${navItemClass}" data-week="${week.week}" ${isLocked ? 'aria-disabled="true"' : ''}>
+                                    ${lockIcon}
+                                    <span>Level ${week.week}: ${week.title}</span>
+                                </a>`
+                            }).join('')}
+                        </nav>
+                    </aside>
+                    <main id="course-content-area" class="w-full md:w-3/4 h-2/3 md:h-full p-8 overflow-y-auto bg-white dark:bg-gray-900">
+                    </main>
+                `;
+
+                lucide.createIcons();
+                renderWeekContent(course, userProgress + 1);
+            };
+
+            async function generateAllLevelsContent(courseTitle) {
+                const prompt = `
+                    You are an expert curriculum designer. For an online course called "${courseTitle}", generate the content for all 30 levels.
+                    The course should progress from beginner, to intermediate, to advanced concepts.
+                    For each level, provide a list of 4 specific topics and a detailed assignment.
+                    Return an array of 30 objects.
+                `;
+
+                 const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: levelContentSchema,
+                    },
+                };
+                 try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`API error: ${response.status}`);
+                    const result = await response.json();
+                    return JSON.parse(result.candidates[0].content.parts[0].text);
+                } catch (error) {
+                    console.error("Failed to generate all level content:", error);
+                    return null;
+                }
+            }
+
+            async function explainTopic(topic, courseTitle, buttonElement) {
+                const listItem = buttonElement.closest('li');
+                const existingExplanation = listItem.querySelector('.explanation-box');
+
+                if (existingExplanation) {
+                    existingExplanation.remove();
+                    return;
+                }
+
+                buttonElement.innerHTML = '<div class="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>';
+
+                 const prompt = `In a simple and concise paragraph, explain the concept of "${topic}" for a beginner student in a course on "${courseTitle}".`;
+                const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`API error: ${response.status}`);
+                    const result = await response.json();
+                    const explanationText = result.candidates[0].content.parts[0].text;
+
+                    const explanationDiv = document.createElement('div');
+                    explanationDiv.className = 'explanation-box';
+                    explanationDiv.textContent = explanationText;
+                    listItem.appendChild(explanationDiv);
+
+                } catch (error) {
+                    console.error("Failed to explain topic:", error);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'explanation-box';
+                    errorDiv.textContent = 'Sorry, I couldn\'t fetch an explanation right now.';
+                    listItem.appendChild(errorDiv);
+                } finally {
+                     buttonElement.innerHTML = '<i data-lucide="sparkles" class="w-4 h-4"></i>';
+                     lucide.createIcons();
+                }
+            }
+
+            function escapeHtml(unsafe) {
+                if (typeof unsafe !== 'string') return unsafe;
+                return unsafe
+                     .replace(/&/g, "&amp;")
+                     .replace(/</g, "&lt;")
+                     .replace(/>/g, "&gt;")
+                     .replace(/"/g, "&quot;")
+                     .replace(/'/g, "&#039;");
+            }
+
+            const renderWeekContent = (course, weekNumber) => {
+                const contentArea = document.getElementById('course-content-area');
+                if (!contentArea) return;
+                const weekData = course.weeklyBreakdown.find(w => w.week === weekNumber);
+                if (!weekData) {
+                    contentArea.innerHTML = `<p>Content not found.</p>`;
+                    return;
+                }
+
+                document.querySelectorAll('.course-nav-item').forEach(item => item.classList.remove('active'));
+                const activeNavItem = document.querySelector(`.course-nav-item[data-week="${weekNumber}"]`);
+                if (activeNavItem) {
+                     activeNavItem.classList.add('active');
+                }
+
+                contentArea.innerHTML = `
+                    <div class="mb-6">
+                        <span class="text-sm font-semibold text-blue-600 bg-blue-100 dark:bg-blue-900/50 dark:text-blue-400 px-2 py-1 rounded">Level ${weekData.week}</span>
+                    </div>
+                    <h1 class="text-3xl font-bold mb-4">${weekData.title}</h1>
+                    <div class="prose dark:prose-invert max-w-none">
+                        <h3 class="font-semibold text-lg">Topics Covered:</h3>
+                        <ul class="list-disc pl-5 space-y-2">
+                            ${(weekData.topics || []).map(topic => `
+                                <li class="flex items-center justify-between">
+                                    <span>${topic}</span>
+                                    <button class="explain-topic-btn text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50" title="Explain this topic with AI" data-course-id="${course.id}">
+                                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                                    </button>
+                                </li>
+                            `).join('')}
+                        </ul>
+                        <h3 class="font-semibold text-lg mt-6">This Week's Assignment:</h3>
+                        <p>${weekData.assignment || ''}</p>
+                    </div>
+                    <div class="mt-8 border-t dark:border-gray-700 pt-6">
+                        <button class="take-quiz-btn w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300" data-course-id="${course.id}" data-week="${weekData.week}">
+                           Take Level ${weekData.week} Quiz ✨
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+            };
+
+            async function generateQuizQuestions(courseTitle, levelTitle, topics) {
+                const prompt = `
+                    Generate a short, 2-question multiple-choice quiz about the following topic.
+                    The user is in an online course called "${courseTitle}".
+                    The current level is "${levelTitle}".
+                    The topics for this level are: ${topics.join(", ")}.
+
+                    The questions should be relevant to these topics. The options should be clear and concise.
+                    For each question, provide 3 options, where only one is correct.
+                    The index of the correct answer for 'o' (options) must correspond to 'a' (answer).
+                    For example, if the options are ["A", "B", "C"] and "B" is the correct answer, 'a' must be 1.
+                    Do not include any code formatting like backticks in the response.
+                `;
+
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: quizSchema,
+                    },
+                };
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) {
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+                    const result = await response.json();
+                    const jsonText = result.candidates[0].content.parts[0].text;
+                    return JSON.parse(jsonText);
+                } catch (error) {
+                    console.error("Error generating quiz:", error);
+                    return null;
+                }
+            }
+
+
+            const renderQuiz = async (course, weekNumber) => {
+                 const contentArea = document.getElementById('course-content-area');
+                 const weekData = course.weeklyBreakdown.find(w => w.week === weekNumber);
+
+                 contentArea.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full">
+                        <div class="loader"></div>
+                        <p class="mt-4 text-gray-600 dark:text-gray-400">✨ Generating a unique quiz for you...</p>
+                    </div>
+                 `;
+
+                 const quizData = await generateQuizQuestions(course.title, weekData.title, weekData.topics);
+
+                 if (!quizData || quizData.length === 0) {
+                    contentArea.innerHTML = `
+                        <div class="text-center">
+                            <h2 class="text-2xl font-bold mb-4">Oops!</h2>
+                            <p class="text-gray-600 dark:text-gray-400 mb-6">We couldn't generate a quiz right now. Please try again in a moment.</p>
+                            <button class="retry-quiz-generation-btn bg-blue-600 text-white px-6 py-2 rounded-lg" data-course-id="${course.id}" data-week="${weekNumber}">Try Again</button>
+                        </div>
+                    `;
+                    return;
+                 }
+
+                 generatedQuizCache[`${course.id}-${weekNumber}`] = quizData;
+
+                 contentArea.innerHTML = `
+                    <h1 class="text-3xl font-bold mb-2">Level ${weekData.week} Quiz: ${weekData.title}</h1>
+                    <p class="text-gray-600 dark:text-gray-400 mb-8">Test your knowledge from this week's lessons.</p>
+                    <div id="quiz-form" class="space-y-6">
+                        ${quizData.map((q, index) => `
+                            <div class="quiz-question">
+                                <p class="font-semibold text-lg">${index + 1}. ${escapeHtml(q.q)}</p>
+                                <div class="mt-2 space-y-2">
+                                    ${q.o.map((option, optIndex) => `
+                                        <label class="flex items-center p-3 border dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                            <input type="radio" name="question-${index}" value="${optIndex}" class="h-4 w-4 text-blue-600 border-gray-300 dark:border-gray-600 focus:ring-blue-500 bg-gray-100 dark:bg-gray-900">
+                                            <span class="ml-3 text-gray-700 dark:text-gray-300">${escapeHtml(option)}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                     <div class="mt-8 border-t dark:border-gray-700 pt-6">
+                        <button class="submit-quiz-btn w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition duration-300" data-course-id="${course.id}" data-week="${weekData.week}">
+                            Submit Answers
+                        </button>
+                    </div>
+                 `;
+            };
+
+            const handleSubmitQuiz = (course, weekNumber) => {
+                const contentArea = document.getElementById('course-content-area');
+                const quizQuestions = generatedQuizCache[`${course.id}-${weekNumber}`];
+                if (!quizQuestions) {
+                    console.error("Quiz data not found for submission.");
+                    renderWeekContent(course, weekNumber); // Go back if something is wrong
+                    return;
+                }
+
+                let score = 0;
+                quizQuestions.forEach((q, index) => {
+                    const selected = document.querySelector(`input[name="question-${index}"]:checked`);
+                    if (selected && parseInt(selected.value) === q.a) {
+                        score++;
+                    }
+                });
+
+                const total = quizQuestions.length;
+                const percentage = Math.round((score / total) * 100);
+                const passed = true; // Still auto-passing
+
+                let resultButtons = '';
+
+                if (passed) {
+                     if (user.progress[course.id] < weekNumber) {
+                        user.progress[course.id] = weekNumber;
+                        const nextLevelNavItem = document.querySelector(`.course-nav-item[data-week="${weekNumber + 1}"]`);
+                        if (nextLevelNavItem) {
+                            nextLevelNavItem.classList.add('text-gray-700', 'dark:text-gray-300', 'hover:bg-gray-100', 'dark:hover:bg-gray-700/50');
+                            nextLevelNavItem.removeAttribute('aria-disabled');
+                            const lockIcon = nextLevelNavItem.querySelector('[data-lucide="lock"]');
+                            if (lockIcon) {
+                                lockIcon.outerHTML = '<i data-lucide="book-open" class="w-5 h-5 mr-3"></i>';
+                                lucide.createIcons();
+                            }
+                        }
+                    }
+
+                    if (weekNumber < course.weeklyBreakdown.length) {
+                         resultButtons = `<button class="continue-to-next-level-btn w-full max-w-xs mx-auto bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-300" data-course-id="${course.id}" data-week="${weekNumber + 1}">
+                            Continue to Level ${weekNumber + 1}
+                        </button>`;
+                    } else {
+                        resultButtons = `<p class="mt-4 font-semibold text-green-600 dark:text-green-400">Congratulations! You've completed the course!</p>`;
+                    }
+                } else {
+                     resultButtons = `<button class="retry-quiz-btn w-full max-w-xs mx-auto bg-orange-500 text-white font-bold py-3 rounded-lg hover:bg-orange-600 transition duration-300" data-course-id="${course.id}" data-week="${weekNumber}">
+                        Retry Quiz
+                    </button>`;
+                }
+
+                contentArea.innerHTML = `
+                    <div class="text-center">
+                        <h1 class="text-3xl font-bold mb-2">Quiz Results</h1>
+                        <p class="text-gray-600 dark:text-gray-400 mb-6">You scored</p>
+                        <p class="text-6xl font-bold ${passed ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'} mb-2">${score} / ${total}</p>
+                        <p class="text-xl font-semibold mb-8">(${percentage}%)</p>
+                        ${resultButtons}
+                        <button class="back-to-course-btn mt-4 text-sm text-gray-500 hover:underline" data-course-id="${course.id}" data-week="${weekNumber}">
+                            Review Level ${weekNumber}
+                        </button>
+                    </div>
+                `;
+            };
+
+            const closeModal = () => {
+                courseModal.classList.add('hidden');
+                courseModal.classList.remove('flex');
+                modalContent.innerHTML = '';
+            };
+
+            window.togglePricing = () => {
+                const isSubscription = document.getElementById('toggle').checked;
+                const priceBasic = document.getElementById('price-basic');
+                const priceUnitBasic = document.getElementById('price-unit-basic');
+                const pricePro = document.getElementById('price-pro');
+                const priceUnitPro = document.getElementById('price-unit-pro');
+                const dot = document.querySelector('.dot');
+
+                if (isSubscription) {
+                    priceBasic.textContent = '$5';
+                    priceUnitBasic.textContent = '/month';
+                    pricePro.textContent = '$10';
+                    priceUnitPro.textContent = '/month';
+                    dot.style.transform = 'translateX(100%)';
+                } else {
+                    priceBasic.textContent = 'Pay';
+                    priceUnitBasic.textContent = '/course';
+                    pricePro.textContent = 'Get';
+                    priceUnitPro.textContent = 'All Access';
+                    dot.style.transform = 'translateX(0)';
+                }
+            }
+
+            const updateDashboard = () => {
+                if (user.isLoggedIn) {
+                    loginBtnDesktop.classList.add('hidden');
+                    logoutBtnDesktop.classList.remove('hidden');
+                    loginBtnMobile.classList.add('hidden');
+                    logoutBtnMobile.classList.remove('hidden');
+
+                    let subscriptionInfo = '';
+                    if (user.subscription) {
+                        const planName = user.subscription.charAt(0).toUpperCase() + user.subscription.slice(1);
+                        const badgeColor = user.subscription === 'pro' ? 'bg-yellow-400 text-yellow-800' : 'bg-blue-200 text-blue-800';
+                         subscriptionInfo = `<span class="text-sm font-medium ml-4 px-2.5 py-0.5 rounded ${badgeColor}">${planName} Plan</span>`;
+                    }
+
+                    const enrolled = allCourses.filter(c => user.enrolledCourses.includes(c.id));
+                    let enrolledHtml = '<p class="text-gray-600 dark:text-gray-400 mb-8">You are not enrolled in any courses yet.</p>';
+                    if(enrolled.length > 0) {
+                         enrolledHtml = `
+                            <div class="mb-8">
+                                <p class="text-gray-600 dark:text-gray-400">Welcome back, ${user.name}!</p>
+                                <p class="text-gray-600 dark:text-gray-400">Current Plan: ${user.subscription ? '' : 'None'}${subscriptionInfo}</p>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                                ${enrolled.map(course => {
+                                    const progress = ((user.progress[course.id] || 0) / course.weeklyBreakdown.length) * 100;
+                                    return `
+                                    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:border dark:border-gray-700 overflow-hidden text-left">
+                                         <div class="relative">
+                                            <img src="${course.image}" alt="${course.title}" class="w-full h-40 object-cover">
+                                        </div>
+                                        <div class="p-4">
+                                            <h4 class="font-bold">${course.title}</h4>
+                                            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-2">
+                                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: ${progress}%"></div>
+                                            </div>
+                                            <button data-course-id="${course.id}" class="continue-learning-btn w-full mt-4 bg-blue-100 text-blue-600 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 font-bold py-2 rounded-lg hover:bg-blue-200 text-sm transition duration-300">Continue Learning</button>
+                                        </div>
+                                    </div>
+                                `}).join('')}
+                            </div>
+                        `;
+                    }
+                    dashboardContent.innerHTML = enrolledHtml;
+
+                } else {
+                    loginBtnDesktop.classList.remove('hidden');
+                    logoutBtnDesktop.classList.add('hidden');
+                    loginBtnMobile.classList.remove('hidden');
+                    logoutBtnMobile.classList.add('hidden');
+                    dashboardContent.innerHTML = `
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Please log in to see your enrolled courses and progress.</p>
+                        <button id="dashboardLoginBtn" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-300">Login Now</button>
+                    `;
+                    document.getElementById('dashboardLoginBtn').addEventListener('click', handleLogin);
+                }
+            };
+
+            const handleLogin = () => {
+                user.isLoggedIn = true;
+                updateDashboard();
+                mobileMenu.classList.add('hidden');
+            };
+
+            const handleLogout = () => {
+                user.isLoggedIn = false;
+                user.subscription = null;
+                updateDashboard();
+                 mobileMenu.classList.add('hidden');
+            };
+
+            async function handleCourseGeneration() {
+                const topic = aiTopicInput.value.trim();
+                if (!topic) {
+                    alert("Please enter a topic.");
+                    return;
+                }
+
+                generateCoursesBtn.disabled = true;
+                aiLoader.classList.remove('hidden');
+                aiLoaderText.textContent = 'Generating curriculum... This may take a moment.';
+                courseGrid.innerHTML = '';
+                loadMoreContainer.innerHTML = '';
+
+                const prompt = `Generate a list of 300 unique and compelling course titles on the subject of "${topic}". The titles should cover a wide range of sub-topics, from beginner-friendly introductions to advanced, specialized professional topics. Ensure there are no duplicate titles.`;
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: courseCatalogSchema,
+                    },
+                };
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(`API error: ${response.status}`);
+                    const result = await response.json();
+                    const titleList = JSON.parse(result.candidates[0].content.parts[0].text);
+
+                    const newCourses = titleList.map((item, index) => {
+                        const newId = allCourses.length + index + 1;
+                        const weeklyBreakdown = Array.from({ length: 30 }, (_, i) => {
+                            const difficulty = i < 10 ? 'Beginner' : i < 20 ? 'Intermediate' : 'Advanced';
+                            return {
+                                week: i + 1,
+                                title: `Level ${i + 1}: ${difficulty} Concepts`,
+                                topics: null,
+                                assignment: null,
+                                isContentGenerated: false
+                            };
+                        });
+                        return {
+                            id: newId,
+                            title: item.title,
+                            category: topic.toLowerCase().replace(/\s+/g, '-'),
+                            price: 2,
+                            duration: '30 Levels',
+                            description: `A comprehensive course on "${item.title}".`,
+                            instructor: "AI Instructor",
+                            image: `https://placehold.co/600x400/818cf8/ffffff?text=${encodeURIComponent(topic)}`,
+                            weeklyBreakdown: weeklyBreakdown
+                        };
+                    });
+
+                    allCourses = [...newCourses]; // Replace all courses with the new ones
+                    coursesTitle.textContent = `Courses on ${topic}`;
+                    coursesSubtitle.textContent = `${newCourses.length} courses generated by AI.`;
+                    filterContainer.classList.add('hidden'); // Hide filters for AI content
+                    renderCourses();
+
+                } catch (error) {
+                    console.error("Failed to generate course catalog:", error);
+                    coursesSubtitle.textContent = "Sorry, we couldn't generate courses for that topic. Please try again.";
+                } finally {
+                    generateCoursesBtn.disabled = false;
+                    aiLoader.classList.add('hidden');
+                }
+            }
+
+
+            // --- EVENT LISTENERS ---
+            filterButtonsContainer.addEventListener('click', (e) => {
+                if (e.target.closest('.filter-btn')) {
+                    document.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.classList.remove('active', 'bg-white', 'dark:bg-gray-800', 'text-blue-600', 'dark:text-blue-400', 'shadow')
+                        btn.classList.add('text-gray-600', 'dark:text-gray-300');
+                    });
+                    const clickedBtn = e.target.closest('.filter-btn');
+                    clickedBtn.classList.add('active', 'bg-white', 'dark:bg-gray-800', 'text-blue-600', 'dark:text-blue-400', 'shadow');
+                    clickedBtn.classList.remove('text-gray-600', 'dark:text-gray-300');
+                    renderCourses(clickedBtn.dataset.filter);
+                }
+            });
+
+            courseGrid.addEventListener('click', (e) => {
+                const card = e.target.closest('[data-course-id]');
+                if(card) {
+                    openCoursePlayer(card.dataset.courseId);
+                }
+            });
+
+            dashboardContent.addEventListener('click', (e) => {
+                const continueBtn = e.target.closest('.continue-learning-btn');
+                if (continueBtn) {
+                    openCoursePlayer(continueBtn.dataset.courseId);
+                }
+            });
+
+            courseModal.addEventListener('click', (e) => {
+                if (e.target === courseModal) closeModal();
+            });
+
+            modalContent.addEventListener('click', (e) => {
+                // Handle close button click FIRST, as it doesn't have course/week data
+                if (e.target.closest('#closeModalBtn')) {
+                    closeModal();
+                    return;
+                }
+
+                // AI Topic Explainer
+                const explainBtn = e.target.closest('.explain-topic-btn');
+                if (explainBtn) {
+                     if (user.subscription === 'pro') {
+                        const courseId = parseInt(explainBtn.dataset.courseId);
+                        const course = allCourses.find(c => c.id === courseId);
+                        const topicText = explainBtn.closest('li').querySelector('span').textContent;
+                        explainTopic(topicText, course.title, explainBtn);
+                    } else {
+                        openPurchaseModal('AI Study Buddy');
+                    }
+                    return;
+                }
+
+                const courseIdStr = e.target.closest('[data-course-id]')?.dataset.courseId;
+                const weekNumberStr = e.target.closest('[data-week]')?.dataset.week;
+
+                if (!courseIdStr || !weekNumberStr) return;
+
+                const courseId = parseInt(courseIdStr);
+                const weekNumber = parseInt(weekNumberStr);
+                const course = allCourses.find(c => c.id === courseId);
+
+                // Sidebar navigation
+                const navItem = e.target.closest('.course-nav-item');
+                if(navItem) {
+                    e.preventDefault();
+                    if (navItem.getAttribute('aria-disabled') === 'true') {
+                        return; // Do nothing if the level is locked
+                    }
+                    renderWeekContent(course, weekNumber);
+                }
+
+                if(e.target.closest('.take-quiz-btn') || e.target.closest('.retry-quiz-generation-btn')) {
+                    renderQuiz(course, weekNumber);
+                }
+
+                if(e.target.closest('.submit-quiz-btn')) {
+                    handleSubmitQuiz(course, weekNumber);
+                }
+
+                if(e.target.closest('.back-to-course-btn')) {
+                     renderWeekContent(course, weekNumber);
+                }
+
+                if(e.target.closest('.continue-to-next-level-btn')) {
+                     renderWeekContent(course, weekNumber);
+                }
+
+                if(e.target.closest('.retry-quiz-btn')) {
+                     renderQuiz(course, weekNumber);
+                }
+            });
+
+            // Purchase Modal Listeners
+            document.getElementById('closePurchaseModalBtn').addEventListener('click', closePurchaseModal);
+            document.querySelector('#pricing').addEventListener('click', (e) => {
+                const planBtn = e.target.closest('[data-plan]');
+                if (planBtn) {
+                    openPurchaseModal('new plan');
+                }
+            });
+
+            const purchasePlansContainer = document.getElementById('purchase-plans-container');
+            const confirmPurchaseBtn = document.getElementById('confirm-purchase-btn');
+            let selectedPlan = null;
+
+            purchasePlansContainer.addEventListener('click', (e) => {
+                const card = e.target.closest('.purchase-plan-card');
+                if (card) {
+                    document.querySelectorAll('.purchase-plan-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selectedPlan = card.dataset.plan;
+                    confirmPurchaseBtn.disabled = false;
+                }
+            });
+
+            confirmPurchaseBtn.addEventListener('click', () => {
+                if (selectedPlan) {
+                    user.subscription = selectedPlan;
+                    updateDashboard();
+                    closePurchaseModal();
+                }
+            });
+
+            submitDevCodeBtn.addEventListener('click', () => {
+                const code = devCodeInput.value.trim().toUpperCase();
+                if (code === 'UNLOCKPRO') {
+                    user.subscription = 'pro';
+                    updateDashboard();
+                    devCodeStatus.textContent = 'Pro features unlocked!';
+                    devCodeStatus.className = 'text-xs mt-2 h-4 text-green-500';
+                    setTimeout(() => { devCodeStatus.textContent = ''; }, 3000);
+                } else if (code === 'LOCKPRO') {
+                    user.subscription = null;
+                    updateDashboard();
+                    devCodeStatus.textContent = 'Pro features locked.';
+                    devCodeStatus.className = 'text-xs mt-2 h-4 text-yellow-500';
+                    setTimeout(() => { devCodeStatus.textContent = ''; }, 3000);
+                } else {
+                    devCodeStatus.textContent = 'Invalid code.';
+                    devCodeStatus.className = 'text-xs mt-2 h-4 text-red-500';
+                    setTimeout(() => { devCodeStatus.textContent = ''; }, 3000);
+                }
+                devCodeInput.value = '';
+            });
+
+
+            loginBtnDesktop.addEventListener('click', handleLogin);
+            logoutBtnDesktop.addEventListener('click', handleLogout);
+            loginBtnMobile.addEventListener('click', handleLogin);
+            logoutBtnMobile.addEventListener('click', handleLogout);
+
+            generateCoursesBtn.addEventListener('click', handleCourseGeneration);
+            aiTopicInput.addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') {
+                    handleCourseGeneration();
+                }
+            })
+
+            // --- INITIAL LOAD ---
+            renderCourses();
+            updateDashboard();
+            togglePricing();
+        });
+    </script>
+</body>
+</html>
+
